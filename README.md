@@ -21,4 +21,10 @@ The suite consists of two types of codes:
  * read_mike_trigger.py -- a completely different approach, which instead of arduino instead has the TTL sent to the audio-jack of the laptop, with pyaudio reading the voltage on the microphone connector
 
  * GeigerCounter/GeigerCounter.ino -- the code for Arduino
- 
+
+ Testing:
+
+ The code here has been tested with two platforms:
+  * Arduino Pro Micro
+  * Arduino Nano Every
+  

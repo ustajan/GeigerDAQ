@@ -4,9 +4,8 @@
 {
 
 	TTree *tree=new TTree();
-//	tree->ReadFile("bg_8hrs.txt","time:adc");
-	tree->ReadFile("aregcode_micro.txt","time:adc"); //Update the filename. Get rid of ":adc" if you're reading the data from logger_barebone.py
-	TH1F *tw=new TH1F("tw","Waiting time between consecutive hits",16000,-0.,0.008); 
+	tree->ReadFile("u_fullforce_GM_LCD.txt","time:adc"); //Update the filename. Get rid of ":adc" if you're reading the data from logger_barebone.py
+	TH1F *tw=new TH1F("tw","Waiting time between consecutive hits",400,-0.,0.02); 
 	tw->GetXaxis()->SetTitle("Waiting time [seconds]");
 	double last_time=0;
 
@@ -25,7 +24,7 @@
 
 	c->cd(2);
 	float total_time=tree->GetMaximum("time");
-	float time_window=1; //the time window by which we'll split the data, in seconds
+	float time_window=0.1; //the time window by which we'll split the data, in seconds
 	int time_windows = (int)total_time*1e-6/time_window;
 	int nevents=tree->GetEntries();
 	std::cout << "Time windows, entries:\t" << time_windows << "\t" << nevents << std::endl;
@@ -38,7 +37,7 @@
 		counts=0;
 		for(int j=1;j<=nevents;++j){
 			tree->GetEntry(j);
-			float time = tree->GetBranch("time")->GetLeaf("time")->GetValue();
+			float time = 1e-6*tree->GetBranch("time")->GetLeaf("time")->GetValue();
 			if(time >= t*time_window && time< (t+1)*time_window) ++counts;
 		}
 		probability->Fill(counts);
