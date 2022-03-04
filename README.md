@@ -1,5 +1,8 @@
 # GeigerDAQ
 
+
+![Image of a typical setup](pictures/image.jpg)
+
 __Authors__:  Areg Hovhannisyan (areg_hovhannisyan@edu.aua.am ), Areg Danagoulian (aregjan@mit.edu)
 
 __License and Copyright__: see individual files
@@ -16,9 +19,11 @@ The suite consists of two types of codes:
  More specific information:
 
  * logger.py -- reads data from the serial bus, performs analysis, writes to a file
- * logger_barebone.py -- does the bare minimum of the above
- * logger_println.py -- the older (less efficient) version of logger.py
- * read_mike_trigger.py -- a completely different approach, which instead of arduino instead has the TTL sent to the audio-jack of the laptop, with pyaudio reading the voltage on the microphone connector
+ * logger\_barebone.py -- does the bare minimum of the above
+ * logger\_println.py -- the older (less efficient but simpler) version of logger.py
+ * plotter.py -- simply python script for plotting the results (requires only one column)
+ * waiting_time.C -- the C++ code for ROOT, that does an analysis similar to plotter.py
+ * read\_mike\_trigger.py -- a completely different approach, which instead of arduino instead has the TTL sent to the audio-jack of the laptop, with pyaudio reading the voltage on the microphone connector
 
  * GeigerCounter/GeigerCounter.ino -- the code for Arduino
 
