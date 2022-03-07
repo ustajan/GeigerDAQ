@@ -1,0 +1,4 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k}{volatile} \PYG{k+kt}{uint32\PYGZus{}t} \PYG{n}{stack}\PYG{p}{[}\PYG{l+m+mi}{256}\PYG{p}{];}
+\PYG{k}{volatile} \PYG{k+kt}{uint8\PYGZus{}t} \PYG{n}{stack\PYGZus{}top} \PYG{o}{=} \PYG{l+m+mi}{0}\PYG{p}{;}
+\end{Verbatim}

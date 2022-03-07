@@ -33,3 +33,8 @@ The suite consists of two types of codes:
   * Arduino Pro Micro
   * Arduino Nano Every
   
+
+Documentation:
+
+The usage of GeigerCounter.ino and logger\_barebone.py can be found in the Documentation directory.  To run the latex (in Mac OS X) do
+> pdflatex -shell-escape Documentation.tex 

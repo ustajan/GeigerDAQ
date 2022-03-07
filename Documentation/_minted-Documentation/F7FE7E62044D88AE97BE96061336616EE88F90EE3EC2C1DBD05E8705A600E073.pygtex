@@ -1,0 +1,9 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{c+c1}{// ...}
+\PYG{k+kt}{void} \PYG{n+nf}{setup}\PYG{p}{()} \PYG{p}{\PYGZob{}}
+    \PYG{c+c1}{// ...}
+    \PYG{n}{Serial}\PYG{p}{.}\PYG{n}{begin}\PYG{p}{(}\PYG{l+m+mi}{9600}\PYG{p}{);}
+    \PYG{c+c1}{// ...}
+\PYG{p}{\PYGZcb{}}
+\PYG{c+c1}{// ...}
+\end{Verbatim}
