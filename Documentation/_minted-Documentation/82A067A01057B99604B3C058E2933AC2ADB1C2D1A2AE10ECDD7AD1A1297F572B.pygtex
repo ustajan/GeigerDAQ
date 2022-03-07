@@ -1,3 +1,0 @@
-\begin{Verbatim}[commandchars=\\\{\}]
-./logger.py \PYGZhy{}p \PYG{l+m}{50000} \PYGZhy{}o data.txt /dev/ttyUSB
-\end{Verbatim}

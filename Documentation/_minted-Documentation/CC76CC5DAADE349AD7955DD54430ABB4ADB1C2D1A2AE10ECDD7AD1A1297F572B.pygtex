@@ -1,3 +1,0 @@
-\begin{Verbatim}[commandchars=\\\{\}]
-./logger.py \PYGZhy{}b \PYG{l+m}{9600} /dev/ttyUSB0
-\end{Verbatim}

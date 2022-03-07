@@ -1,6 +1,0 @@
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{k+kt}{void} \PYG{n+nf}{detect}\PYG{p}{()} \PYG{p}{\PYGZob{}}
-    \PYG{n}{stack}\PYG{p}{[}\PYG{n}{stack\PYGZus{}top}\PYG{p}{]} \PYG{o}{=} \PYG{n}{micros}\PYG{p}{();}
-    \PYG{o}{++}\PYG{n}{stack\PYGZus{}top}\PYG{p}{;}
-\PYG{p}{\PYGZcb{}}
-\end{Verbatim}

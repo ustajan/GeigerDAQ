@@ -1,7 +1,0 @@
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{k+kt}{void} \PYG{n+nf}{setup}\PYG{p}{()} \PYG{p}{\PYGZob{}}
-    \PYG{n}{pinMode}\PYG{p}{(}\PYG{n}{interruptPin}\PYG{p}{,} \PYG{n}{INPUT}\PYG{p}{);}
-    \PYG{n}{Serial}\PYG{p}{.}\PYG{n}{begin}\PYG{p}{(}\PYG{l+m+mi}{115200}\PYG{p}{);}
-    \PYG{n}{attachInterrupt}\PYG{p}{(}\PYG{n}{digitalPinToInterrupt}\PYG{p}{(}\PYG{n}{interruptPin}\PYG{p}{),} \PYG{n}{detect}\PYG{p}{,} \PYG{n}{RISING}\PYG{p}{);}
-\PYG{p}{\PYGZcb{}}
-\end{Verbatim}

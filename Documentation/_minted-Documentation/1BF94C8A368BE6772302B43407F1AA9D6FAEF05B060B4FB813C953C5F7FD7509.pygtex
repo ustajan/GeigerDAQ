@@ -1,8 +1,0 @@
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{k}{with} \PYG{n}{serial}\PYG{o}{.}\PYG{n}{Serial}\PYG{p}{(}\PYG{n}{args}\PYG{o}{.}\PYG{n}{port}\PYG{p}{,} \PYG{n}{args}\PYG{o}{.}\PYG{n}{baudrate}\PYG{p}{)} \PYG{k}{as} \PYG{n}{ser}\PYG{p}{:}
-    \PYG{k}{while} \PYG{k+kc}{True}\PYG{p}{:}
-        \PYG{n}{s} \PYG{o}{=} \PYG{n}{ser}\PYG{o}{.}\PYG{n}{read}\PYG{p}{(}\PYG{l+m+mi}{4}\PYG{p}{)}
-        \PYG{n}{micros} \PYG{o}{=} \PYG{n+nb}{int}\PYG{o}{.}\PYG{n}{from\PYGZus{}bytes}\PYG{p}{(}\PYG{n}{s}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}little\PYGZdq{}}\PYG{p}{)}
-
-        \PYG{n}{outfile}\PYG{o}{.}\PYG{n}{write}\PYG{p}{(}\PYG{n+nb}{str}\PYG{p}{(}\PYG{n}{micros}\PYG{p}{)} \PYG{o}{+} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}
-\end{Verbatim}
