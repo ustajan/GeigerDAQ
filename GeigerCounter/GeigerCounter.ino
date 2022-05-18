@@ -13,6 +13,7 @@
 const int rs = 6, en = 7, d4 = 5, d5 = 4, d6 = 3, d7 = 2;
 //LiquidCrystal lcd(rs, en, d4, d5, d6, d7); //bare LCD
 LiquidCrystal_I2C lcd(0x27,16,2); // to ttalk to the LCD over i2c
+// for pinout see https://www.makerguides.com/character-i2c-lcd-arduino-tutorial/
 
 const byte interruptPin = 0; //0 is also marked as RX1 on Arduino Micro Pro, RX0 on Nano Every
 volatile uint32_t stack[256];
@@ -22,15 +23,23 @@ uint32_t count_long=0;
 int display_refresh_time=5; //in seconds
 int display_refresh_long=30;
 
+//const byte buttonPin    = 10; // I chose 10 because on pro Micro it's at the corner
+//bool button=false; //button status
+
+#define LED 9 
+
 void loop() {
 	while (stack_top) {
 		Serial.write((uint8_t*) &stack[--stack_top], 4);
 	}
 
-  display();
+  display_counts();
 }
 
 void setup() {
+//  pinMode(buttonPin,INPUT_PULLUP);
+//  attachInterrupt(digitalPinToInterrupt(buttonPin), SetMode, FALLING); // trigger when button pressed, but not when released
+  
 	pinMode(interruptPin, INPUT);
 	attachInterrupt(digitalPinToInterrupt(interruptPin), detect, RISING);
 	Serial.begin(115200);
@@ -46,7 +55,9 @@ void setup() {
   lcd.setCursor(0,1);
   lcd.print("uR/hr: summing");
   lcd.display();
- 
+  
+  // set up the LED
+  pinMode(LED, OUTPUT);
 }
 
 void detect() {
@@ -54,9 +65,13 @@ void detect() {
 	++stack_top;
   ++count;
   ++count_long;
+  digitalWrite(LED, HIGH);
+  delay(1);                //this is gonna be a deadtime.  Turn on only when rates are low.
+  digitalWrite(LED, LOW);
+
 }
 
-void display() {
+void display_counts() {
 
   float CPM, CPM_long;
   unsigned long time=millis();
@@ -67,6 +82,7 @@ void display() {
     lcd.setCursor(4,0); // go one past (cpm):
     CPM=float(count)*60/(display_refresh_time);
     lcd.print(int(CPM));
+//    lcd.print(int(button));
     count=0; //reset
     if(CPM<20) display_refresh_time=30; //depending on the current rate, change the integration time
     else if(CPM<100) display_refresh_time=10;
@@ -81,3 +97,41 @@ void display() {
     count_long=0;
   }  
 }
+
+//int getBandgap(void) // Returns actual value of Vcc (x 100) //commenting this out for now, perhaps to be used in the future
+//    {
+//        
+//#if defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
+//     // For mega boards
+//     const long InternalReferenceVoltage = 1115L;  // Adjust this value to your boards specific internal BG voltage x1000
+//        // REFS1 REFS0          --> 0 1, AVcc internal ref. -Selects AVcc reference
+//        // MUX4 MUX3 MUX2 MUX1 MUX0  --> 11110 1.1V (VBG)         -Selects channel 30, bandgap voltage, to measure
+//     ADMUX = (0<<REFS1) | (1<<REFS0) | (0<<ADLAR)| (0<<MUX5) | (1<<MUX4) | (1<<MUX3) | (1<<MUX2) | (1<<MUX1) | (0<<MUX0);
+//  
+//#else
+//     // For 168/328 boards
+//     const long InternalReferenceVoltage = 1056L;  // Adjust this value to your boards specific internal BG voltage x1000
+//        // REFS1 REFS0          --> 0 1, AVcc internal ref. -Selects AVcc external reference
+//        // MUX3 MUX2 MUX1 MUX0  --> 1110 1.1V (VBG)         -Selects channel 14, bandgap voltage, to measure
+//     ADMUX = (0<<REFS1) | (1<<REFS0) | (0<<ADLAR) | (1<<MUX3) | (1<<MUX2) | (1<<MUX1) | (0<<MUX0);
+//       
+//#endif
+//     delay(50);  // Let mux settle a little to get a more stable A/D conversion
+//        // Start a conversion  
+//     ADCSRA |= _BV( ADSC );
+//        // Wait for it to complete
+//     while( ( (ADCSRA & (1<<ADSC)) != 0 ) );
+//        // Scale the value
+//     int results = (((InternalReferenceVoltage * 1024L) / ADC) + 5L) / 10L; // calculates for straight line value 
+//     return results;
+// 
+//    }
+//
+//void SetMode(void){
+//  if(button)
+//    button=false;
+//  else
+//    button=true;
+//
+//
+//}
