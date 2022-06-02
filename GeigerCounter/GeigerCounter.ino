@@ -10,7 +10,7 @@
 
 // initialize the library by associating any needed LCD interface pin
 // with the arduino pin number it is connected to
-const int rs = 6, en = 7, d4 = 5, d5 = 4, d6 = 3, d7 = 2;
+// const int rs = 6, en = 7, d4 = 5, d5 = 4, d6 = 3, d7 = 2;
 //LiquidCrystal lcd(rs, en, d4, d5, d6, d7); //bare LCD
 LiquidCrystal_I2C lcd(0x27,16,2); // to ttalk to the LCD over i2c
 // for pinout see https://www.makerguides.com/character-i2c-lcd-arduino-tutorial/
@@ -47,13 +47,16 @@ void setup() {
  // LCD display:
   lcd.init(); // this is for i2c only
   lcd.backlight(); // this is for i2c only
-  
-  // set up the LCD's number of columns and rows:
-  // lcd.begin(16, 2); //this is for direct LCD only
-  // Print a message to the LCD.
-  lcd.print("CPM: summing");
+
+  analogReference(INTERNAL); //this sets the ADC reference voltage to 2.56 V for Pro Micro. For more see https://www.arduino.cc/reference/en/language/functions/analog-io/analogreference/
+  for(int i=0;i<5;++i) analogRead(1);
   lcd.setCursor(0,1);
-  lcd.print("uR/hr: summing");
+  lcd.print("VCC: ");
+  lcd.print(2L*analogRead(1)*2.56/1024); //print the VCC voltage. Assumes that the voltage has been divided by a voltage divider, by 2
+  lcd.setCursor(0,0);
+  lcd.print("HV: ");
+  for(int i=0;i<50;++i) analogRead(2);
+  lcd.print(1000L*analogRead(2)*2.56/1024); //print the HV.  Assumes a voltage divider of 0.001
   lcd.display();
   
   // set up the LED
@@ -77,6 +80,8 @@ void display_counts() {
   unsigned long time=millis();
   
   if(time%(display_refresh_time*1000)==0){
+    lcd.setCursor(0,0);
+    lcd.print("CPM: ");
     lcd.setCursor(4,0); // go one past (cpm):
     lcd.print("          ");
     lcd.setCursor(4,0); // go one past (cpm):
@@ -89,6 +94,8 @@ void display_counts() {
     else display_refresh_time=1;
   }
   if(time%(display_refresh_long*1000)==0){ //for the dose we use the longer, 30sec integration
+    lcd.setCursor(0,1);
+    lcd.print("uR/hr: ");
     lcd.setCursor(7,1); // go one past /hr:
     lcd.print("         ");
     lcd.setCursor(7,1); // go one past /hr:
@@ -123,7 +130,7 @@ void display_counts() {
 //     while( ( (ADCSRA & (1<<ADSC)) != 0 ) );
 //        // Scale the value
 //     int results = (((InternalReferenceVoltage * 1024L) / ADC) + 5L) / 10L; // calculates for straight line value 
-//     return results;
+//     return results*10; //to milivolts
 // 
 //    }
 //

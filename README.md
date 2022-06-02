@@ -20,9 +20,10 @@ The suite consists of two types of codes:
 
  * logger.py -- reads data from the serial bus, performs analysis, writes to a file
  * logger\_barebone.py -- does the bare minimum of the above
- * logger\_println.py -- the older (less efficient but simpler) version of logger.py
+ * logger\_println.py -- the older (less efficient but simpler) version of logger.py. Will be retired in the near future.
  * plotter.py -- simply python script for plotting the results (requires only one column)
  * waiting_time.C -- the C++ code for ROOT, that does an analysis similar to plotter.py
+ * logger_GPIO.py -- the python code for reading in the signal using the GPIO of a Raspberry Pi
  * read\_mike\_trigger.py -- a completely different approach, which instead of arduino instead has the TTL sent to the audio-jack of the laptop, with pyaudio reading the voltage on the microphone connector
 
  * GeigerCounter/GeigerCounter.ino -- the code for Arduino
