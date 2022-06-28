@@ -56,7 +56,7 @@ void setup() {
   lcd.setCursor(0,0);
   lcd.print("HV: ");
   for(int i=0;i<50;++i) analogRead(2);
-  lcd.print(1000L*analogRead(2)*2.56/1024); //print the HV.  Assumes a voltage divider of 0.001
+  lcd.print(909L*analogRead(2)*2.56/1024); //print the HV.  Assumes a voltage divider of 0.0011
   lcd.display();
   
   // set up the LED

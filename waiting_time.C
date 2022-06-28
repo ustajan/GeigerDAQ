@@ -4,7 +4,7 @@
 {
 
 	TTree *tree=new TTree();
-	tree->ReadFile("raspi_Uplate.txt","time/D:adc"); //Update the filename. Get rid of ":adc" if you're reading the data from logger_barebone.py
+	tree->ReadFile("background.txt","time/D:adc"); //Update the filename. Get rid of ":adc" if you're reading the data from logger_barebone.py
 	TH1F *tw=new TH1F("tw","Waiting time between consecutive hits",1000,-0.,0.010); 
 	tw->GetXaxis()->SetTitle("Waiting time [seconds]");
 	double last_time=0;
