@@ -18,6 +18,8 @@ The suite consists of two types of codes:
 
  More specific information:
 
+ * requirements.txt -- Requirements for running the Python scripts
+ * requirements_rpi.txt -- Requirements for running the logger_GPIO.py file (on a Raspberry Pi)
  * logger.py -- reads data from the serial bus, performs analysis, writes to a file
  * logger\_barebone.py -- does the bare minimum of the above
  * logger\_println.py -- the older (less efficient but simpler) version of logger.py. Will be retired in the near future.
