@@ -8,6 +8,7 @@ import time
 import argparse
 import sys
 import numpy
+import os
 
 parser = argparse.ArgumentParser()
 parser.add_argument('port', help='specify the serial port (e.g. /dev/ttyUSB0 on linux, COM14 on windows)')
@@ -17,6 +18,7 @@ parser.add_argument('-o', '--output', help='specify the output file. stdout will
 parser.add_argument('-p', '--data-points',
 					help='quit after the specified amount of detections. use 0 or a negative number to run indefinitely.', type=int)
 parser.add_argument('-r','--rate',help='Print the real time rate. Note, this may slow down the acquisition. Input: integration counts.')
+parser.add_argument('-t','--timeout',help='Quit after t minutes', type=float)
 args = parser.parse_args()
 
 outfile = None
@@ -31,6 +33,12 @@ count = 0
 if args.rate:
 	integration_count=int(args.rate)
 	times=numpy.zeros(integration_count)
+
+if args.timeout:
+	from threading import Timer
+	t = Timer(args.timeout * 60, lambda: os._exit(0))
+	t.daemon = True
+	t.start()
 
 beg = time.time()
 time_elapsed=0
