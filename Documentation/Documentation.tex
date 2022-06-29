@@ -1,4 +1,4 @@
-% Created 2022-03-05 Sat 20:22
+% Created 2022-06-29 Wed 21:05
 % Intended LaTeX compiler: pdflatex
 \documentclass[11pt]{article}
 \usepackage[utf8]{inputenc}
@@ -18,27 +18,37 @@
 \usepackage{capt-of}
 \usepackage[colorlinks=true]{hyperref}
 \usepackage{minted}
-\date{\today}
-\title{Geiger Counter Logger}
+\usepackage[margin=1.2in]{geometry}
+\usepackage{titlesec}
+\usepackage{charter}
+\usepackage{helvet}
+\usepackage{parskip}
+\usepackage{titling}
+\titleformat{\section}{\huge\bfseries\textsf}{\thesection}{0.4em}{}[\titlerule]
+\titleformat{\subsection}{\Large\bfseries\textsf}{\thesubsection}{0.4em}{}[]
+\titleformat{\subsubsection}{\large\bfseries\textsf}{\thesubsubsection}{0.4em}{}[]
+\frenchspacing
+\renewcommand{\maketitle}{\begin{center}\textsf{ {\Huge\bfseries\thetitle}\\\vspace{0.5em}\theauthor\\\vspace{0.5em}\thedate}\end{center}}
 \author{Areg Hovhannisyan}
+\date{\today}
+\title{Geiger Counter DAQ}
 \hypersetup{
- pdfauthor={},
- pdftitle={Geiger Counter Logger},
+ pdfauthor={Areg Hovhannisyan},
+ pdftitle={Geiger Counter DAQ},
  pdfkeywords={},
  pdfsubject={},
- pdfcreator={Emacs 29.0.50 (Org mode 9.5.2)}, 
+ pdfcreator={Emacs 29.0.50 (Org mode 9.5.3)}, 
  pdflang={English}}
 \begin{document}
 
 \maketitle
+This file documents the Arduino-based data capture system for the Geiger Counter project. Using a common Arduino board, we capture the pulses emitted by the Geiger counter and transfer the timestamps to a PC with the Arduino's serial port for further processing.
+
 \tableofcontents
-
-\clearpage
-
-This file documents the Arduino-based data capture system for the Geiger Counter project. Using a common Arduino board, we capture the pulses emitted by the Geiger counter and transfer the timestamps to a PC with the Arduino's serial port for further processing. 
+\AddToHook{cmd/section/before}{\clearpage}
 
 \section{Requirements}
-\label{sec:org92d3866}
+\label{sec:org36dd43c}
 \begin{itemize}
 \item 1x Arduino board (Nano, Micro, Uno, Pro Mini, etc) with a matching USB cable
 \item 2x Jumper wires
@@ -46,36 +56,37 @@ This file documents the Arduino-based data capture system for the Geiger Counter
 \item The DAQ software from \url{https://github.com/ustajan/GeigerDAQ}
 \end{itemize}
 
+
 \section{Getting Started}
-\label{sec:orgcae04a9}
+\label{sec:org3936b99}
 \subsection{Programming the Arduino}
-\label{sec:org259ca5b}
+\label{sec:org67cf4d3}
 First, we need to upload the pulse detector code to the Arduino. Download and install the \href{https://docs.arduino.cc/software/ide-v1}{Arduino IDE}, and open the \texttt{GeigerCounter.ino} sketch. Then, connect the Arduino to the computer using a USB cable. A new serial port should appear in the \texttt{Tools > Port} submenu in the Arduino IDE - select it and note it down. Next, select your Arduino board type (Nano, Uno, etc) from the \texttt{Tools > Board} menu. If your Arduino model does not appear in the menu, use the Boards Manager (first item in the same submenu) and install the matching Arduino core.
 
 You should now be able to upload the sketch to the Arduino board - just press the upload button. If the upload fails, you might need to try playing with some of the options in \texttt{Tools > Processor}.
 
 \subsection{Wiring}
-\label{sec:orgfc5829e}
-Now that we have uploaded the code to the Arduino, we need to physically connect it to the Geiger counter to detect and log the pulses. Make sure both the Arduino and Geiger counter are powered off for this step. Use the jumper wires to connect any ground pin (marked GND) of your Arduino board to the GND pin of the Geiger counter, and pin \texttt{D0} of the Arduino to the \texttt{PS} pin of the Geiger counter\footnote{While the PS pin is the "safest" source of the signal, one should also try to read out the GM pin or even the INV (inverter pin), as those will produce faster signals.}.
+\label{sec:org0986c3d}
+Now that we have uploaded the code to the Arduino, we need to physically connect it to the Geiger counter to detect and log the pulses. Make sure both the Arduino and Geiger counter are powered off for this step. Use the jumper wires to connect any ground pin (marked GND) of your Arduino board to the GND pin of the Geiger counter, and pin \texttt{D2} of the Arduino to the \texttt{PS} pin of the Geiger counter.
 
 \subsection{Logging the data}
-\label{sec:orgb4c074b}
+\label{sec:orgf69259d}
 We are now ready to run the data acquisition software. You need to have Python 3 installed for this step, so download it from \url{https://python.org} or your distribution's package manager. Additionally, the \texttt{pyserial} library is needed for our logger program to be able to talk to the Arduino. You can install it from PyPI by running \texttt{pip install pyserial} in a terminal.\\
 Connect the Arduino to your PC once again and open a terminal. We are going to use \texttt{logger.py} to connect to the Arduino and log the signals: run \texttt{./logger.py <port>} where \texttt{<port>} is the serial port you noted down earlier from within Arduino IDE\footnote{On Windows systems, \texttt{<port>} should look something like \texttt{COMn} where \texttt{n} is a number. Linux and MacOS systems usually have \texttt{/dev/ttyUSBn} and \texttt{/dev/tty.usbmodemn}, respectively (\texttt{n} is once again a number). For example, if you uploaded the code through \texttt{/dev/ttyUSB0}, run \texttt{./logger.py /dev/ttyUSB0}.}. Power on the Geiger Counter, and if everything went right, you should see a number get printed every time a detection happens. These numbers are the timestamps\footnote{The timestamp is the number of microseconds since startup, measured by the Arduino's clock.} of detections.
 
 Once you've verified that the detections and the communication work reliably, you can use \texttt{logger.py} to log the detections to a file using the \texttt{-o} option (e.g. \texttt{./logger.py -o data.txt /dev/ttyUSB0}).
 
 \section{More options}
-\label{sec:orgd1e64cd}
+\label{sec:orga89c5ed}
 \texttt{logger.py} has a few more options that may be useful if you wish to further tweak the setup:
 \subsection{\texttt{-p / -{}-data-points}}
-\label{sec:org83eb340}
+\label{sec:orgae00dd6}
 This option sets the number of data points to be captured before quitting. For example, if you wish to log exactly 50000 detections overnight, you can use the following:
 \begin{minted}[tabsize=4]{sh}
-./logger.py -p 50000 -o data.txt /dev/ttyUSB
+./logger.py -p 50000 -o data.txt /dev/ttyUSB0
 \end{minted}
 \subsection{\texttt{-b / -{}-baudrate}}
-\label{sec:org720cd93}
+\label{sec:orga99e952}
 If you wish to adjust the baudrate used for the Arduino <---> PC communication, you can use this option, but make sure to update the baudrate in the Arduino code too (in the \texttt{Serial.begin()} call, in \texttt{setup()}). However, do note that using a low baudrate can cause detection misses, especially when hits are coming in at a high frequency.\\
 As an example, if we wish to use the (relatively slow) baudrate of 9600, we can update the Arduino code to 
 \begin{minted}[tabsize=4]{c}
@@ -91,14 +102,21 @@ and use run \texttt{logger.py} like so:
 \begin{minted}[tabsize=4]{sh}
 ./logger.py -b 9600 /dev/ttyUSB0
 \end{minted}
+\subsection{\texttt{-t / -{}-timeout}}
+\label{sec:org3472c71}
+This options allows you to stop recording data after \texttt{t} minutes. For example:
+\begin{minted}[tabsize=4]{sh}
+./logger.py -t 2 -o data.txt /dev/ttyUSB0
+\end{minted}
+will log data for 2 minutes and automatically quit.
 
-\section{Internal workings}
-\label{sec:orgcbdf3a4}
+\section{Internals}
+\label{sec:org427a174}
 This section describes the technical realization of the pulse detector system.
 
 Conceptually, the system is very simple: the Arduino continuously measures the voltage at one of its pins (which is connected to the GC output) and reports its current system time to the PC whenever it detects a rising edge. However, the implementation has a few noteworthy points.
 \subsection{The Arduino Code}
-\label{sec:orgfc3b887}
+\label{sec:orgea08e1a}
 Let's start with \texttt{setup()}, the code that runs only once when the Arduino is first powered up:
 \begin{minted}[tabsize=4]{c}
 void setup() {
@@ -109,9 +127,9 @@ void setup() {
 \end{minted}
 On the first line, we configure the pin used for detecting the pulses as an input. \texttt{interruptPin} is a global constant, defined so:
 \begin{minted}[tabsize=4]{c}
-const byte interruptPin = 0;
+const byte interruptPin = 2;
 \end{minted}
-On the common ATMega328p-based Arduinos (Nano, Uno, etc), this makes pin D0 the input pin.
+On the common ATMega328p-based Arduinos (Nano, Uno, etc), this makes pin D2 the input pin.
 
 The second line in \texttt{setup()} initializes the Arduino's serial interface, which is used for communicating to the PC. We configure it to run at 115200 bauds/second, which allows for relatively high-speed communication.
 
@@ -167,7 +185,7 @@ This is done to offload the Arduino: generating a human-readable representation 
 As for the \texttt{volatile} keywords in (in the global variable definitions), they tell the compiler that the value of these variable can change outside normal control paths. In our case, this "unexpected" change comes from \texttt{detect}, which is an interrupt - the compiler has no way of predicting when \texttt{detect} will be called. Because we change \texttt{stack} and \texttt{stack\_top} from inside \texttt{detect}, we need to warn the compiler about this, otherwise it might make some optimizations that break our code.
 
 \subsection{Logger.py}
-\label{sec:org9461c54}
+\label{sec:orgff92673}
 \texttt{logger.py} is much simpler than the Arduino code. It has a few command-line options, but those have already been documented and their implementation is not very interesting.
 
 The most noteworthy lines from \texttt{logger.py} are the following:
