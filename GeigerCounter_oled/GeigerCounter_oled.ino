@@ -21,32 +21,34 @@
 const byte interruptPin = 0; //0 is also marked as RX1 on Arduino Micro Pro, RX0 on Nano Every
 volatile uint32_t stack[128]; //it looks like anything larger 128 hangs the OLED
 volatile uint8_t stack_top = 0;
-uint32_t count=0;
-int display_refresh_time=5; //in seconds
+uint32_t count=0,count_total=0;
+uint32_t count_refresh = 5;
+int display_refresh_time=1; //in seconds
 unsigned long last_time=0;
 float max_dose=0; //maximum observed dose, in uR/hr
 float total_dose=0; //total dose, in uR
+bool first_time=true;
 
 #define LED 9 
 
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
 
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
+
 void loop() {
 	while (stack_top) {
 		Serial.write((uint8_t*) &stack[--stack_top], 4);
 	}
-
   unsigned long time=(millis()/1000L);
   
-  if(time-last_time>display_refresh_time){
+  if(time-last_time>display_refresh_time && count>=count_refresh){
     display_counts(time-last_time);
     last_time=time;
   }
-  if(millis()%2000==0) display_voltage(); //once per 2s display voltages
+  if(millis()%2000==0 && first_time==false) display_voltage(); //once per 2s display voltages
 }
 
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 
 void setup() {
 //  pinMode(buttonPin,INPUT_PULLUP);
@@ -65,33 +67,28 @@ void setup() {
   display.setTextSize(1);
   display.setTextColor(WHITE);
   display.setCursor(0, 0);
-  // Display static text
-  display.println("Welcome to MIT LANPh Geiger world!");
+  //Welcome message
+  display.println("Laboratory of Applied Nuclear Physics");
   display.println();
-  display.println("For more info go to");
+  display.println("Visit us at");
   display.println();
-  display.println("areg.mit.edu");
+  display.println("lanph.mit.edu");
+  display.println();
+  display.println("Counting...pls wait.");
   display.display(); 
-  delay(4000);
-  display.clearDisplay();
-    
- // LCD display:
- // lcd.init(); // this is for i2c only
- // lcd.backlight(); // this is for i2c only
-
   analogReference(INTERNAL); //this sets the ADC reference voltage to 2.56 V for Pro Micro. For more see https://www.arduino.cc/reference/en/language/functions/analog-io/analogreference/
-  display_voltage();
   
   // set up the LED
   pinMode(LED, OUTPUT);
 }
 
 void detect() {
-  if(stack_top<128){
+  if(stack_top<256){
   	stack[stack_top] = micros();
   	++stack_top;
   }
-  ++count;
+  ++count; //this gets reset every time the rates are displayed, in display_count()
+  ++count_total;
   digitalWrite(LED, HIGH);
   delay(1);                //this is gonna be a deadtime.  Turn on only when rates are low.
   digitalWrite(LED, LOW);
@@ -100,48 +97,58 @@ void detect() {
 
 void display_counts(unsigned long time_difference) {
 
-
-    display.setTextSize(2);
-    display.setTextColor(WHITE,BLACK);
-    display.setCursor(0,13);
-    display.print("          ");     display.setCursor(0,13); //erase the line
-    display.print("CPM:");
-    float CPM=float(count)*60/(time_difference);
-    display.print(uint32_t(CPM));
-    display.display();
-
-    display.setCursor(0,28);
-    display.setTextColor(WHITE,BLACK);
-    display.print("          ");     display.setCursor(0,28); //erase the line
-    display.print("uR/hr:");
-    float dose=CPM*0.57;  //0.0057 is the conversion from CPM to uSv/hr for the SBM-20 unit (0.0066 for the J305)
-    display.print(uint32_t(dose)); 
-    display.display();
-    if(dose>max_dose) max_dose=dose;
-    total_dose+=dose*time_difference/3600L; //dose rate times the claculation window
-
-    //now display the max dose on the first row:
-    display.setTextSize(1);
-    display.setTextColor(WHITE,BLACK);
-    display.setCursor(0,44);
-    display.print("                   ");     display.setCursor(0,44); //erase the line
-    display.print("max:");
-    display.print(max_dose);
-    display.setCursor(0,55);
-    display.print("                   ");     display.setCursor(0,55); //erase the line    
-    display.print("TOTAL:");
-    display.print(total_dose);
+  if(first_time) {
+    display.clearDisplay();
+    first_time=false;
+  }
     
-    count=0; //reset
-    if(CPM<20) display_refresh_time=30; //depending on the current rate, change the integration time
-    else if(CPM<100) display_refresh_time=10;
-    else display_refresh_time=1;
 
+  display.setCursor(0,9);
+  display.setTextSize(1);    
+  display.print("                   ");     display.setCursor(0,9); //erase the line    
+  display.print("count/time:");
+  display.print(count_total);
+  display.print("/");
+  display.print(millis()/1000L);
+
+
+
+  display.setTextSize(2);
+  display.setCursor(0,18);
+  display.print("          ");     display.setCursor(0,18); //erase the line
+  display.print("CPM:");
+  float CPM=float(count)*60/(time_difference);
+  display.print(uint32_t(CPM));
+
+  display.setCursor(0,33);
+  display.print("          ");     display.setCursor(0,33); //erase the line
+  display.print("uR/hr:");
+  float dose_rate=CPM*0.57;  //0.0057 is the conversion from CPM to uSv/hr for the SBM-20 unit (0.0066 for the J305)
+  display.print(uint32_t(dose_rate)); 
+  if(dose_rate>max_dose) max_dose=dose_rate;
+  total_dose+=dose_rate*time_difference/3600L; //dose rate times the claculation window
+
+  //now display the max dose:
+  display.setTextSize(1);
+  display.setCursor(0,48);
+  display.print("                   ");     display.setCursor(0,48); //erase the line
+  display.print("max:");
+  display.print(max_dose);
+  
+  display.setCursor(0,56);
+  display.print("                   ");     display.setCursor(0,56); //erase the line
+  display.print("Dose(uR):");
+  display.print(total_dose);
+
+  display.display();
+
+  
+  count=0; //reset
  
 }
 
 void display_voltage(){
-//  for(int i=0;i<5;++i) analogRead(1);
+
   display.setTextSize(1);
   display.setTextColor(WHITE,BLACK);
   display.setCursor(0,0);
@@ -149,11 +156,9 @@ void display_voltage(){
   display.print("VCC:");
   display.print(2L*analogRead(1)*2.56/1024); //print the VCC voltage. Assumes that the voltage has been divided by a voltage divider, by 2.  Max value of input is 2.56V.
   display.print("V");
-//  display.setCursor(0,12);
-//  display.print("                   ");     display.setCursor(0,12); //erase the line
-  display.print("|HV:");
+  display.print("    HV:");
   for(int i=0;i<5;++i) analogRead(2);
-  display.print(909L*analogRead(2)*2.56/1024); //print the HV.  Assumes a voltage divider of 0.0011
+  display.print(int(909L*analogRead(2)*2.56/1024)); //print the HV.  Assumes a voltage divider of 0.0011
   display.print("V");
   
   display.display();
