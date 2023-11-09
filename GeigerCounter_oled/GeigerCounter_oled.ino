@@ -24,10 +24,11 @@ volatile uint8_t stack_top = 0;
 uint32_t count=0,count_total=0;
 uint32_t count_refresh = 5;
 int display_refresh_time=1; //in seconds
-unsigned long last_time=0;
+unsigned long last_time=0,last_led_on=0;
 float max_dose=0; //maximum observed dose, in uR/hr
 float total_dose=0; //total dose, in uR
 bool first_time=true;
+bool led_blink_on=false,led_blink_arm=true;
 
 #define LED 9 
 
@@ -47,6 +48,8 @@ void loop() {
     last_time=time;
   }
   if(millis()%2000==0 && first_time==false) display_voltage(); //once per 2s display voltages
+
+  blinker();
 }
 
 
@@ -89,10 +92,8 @@ void detect() {
   }
   ++count; //this gets reset every time the rates are displayed, in display_count()
   ++count_total;
-  digitalWrite(LED, HIGH);
-  delay(1);                //this is gonna be a deadtime.  Turn on only when rates are low.
-  digitalWrite(LED, LOW);
-
+  led_blink_on=true;
+  
 }
 
 void display_counts(unsigned long time_difference) {
@@ -162,5 +163,19 @@ void display_voltage(){
   display.print("V");
   
   display.display();
+  
+}
+void blinker(){ //operate the LED on/off
+
+  if(led_blink_on && led_blink_arm){
+   digitalWrite(LED, HIGH);
+   led_blink_arm=false;
+   last_led_on=millis();
+  }
+  else if(led_blink_on && millis()-last_led_on>10){ //stay on for 10 ms
+    digitalWrite(LED, LOW);
+    led_blink_arm=true;
+    led_blink_on=false;     
+  }
   
 }
