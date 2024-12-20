@@ -29,8 +29,10 @@ float max_dose=0; //maximum observed dose, in uR/hr
 float total_dose=0; //total dose, in uR
 bool first_time=true;
 bool led_blink_on=false,led_blink_arm=true;
+uint32_t led_blink_time=100; //the led blink time, in ms
 
 #define LED 9 
+#define INVERSE false // if this is true, then the LED output will be the inverse: turn OFF every count
 
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
@@ -168,13 +170,15 @@ void display_voltage(){
 void blinker(){ //operate the LED on/off
 
   if(led_blink_on && led_blink_arm){
-   digitalWrite(LED, HIGH);
-   led_blink_arm=false;
-   last_led_on=millis();
+    if(INVERSE)    digitalWrite(LED, LOW);
+    else digitalWrite(LED, HIGH);
+    led_blink_arm=false;
+    last_led_on=millis();
   }
-  else if(led_blink_on && millis()-last_led_on>10){ //stay on for 10 ms
-    digitalWrite(LED, LOW);
-    led_blink_arm=true;
+  else if(led_blink_on && millis()-last_led_on>led_blink_time){ //stay on for led_blink_time ms
+    if(INVERSE)    digitalWrite(LED, HIGH);
+    else digitalWrite(LED, LOW);
+     led_blink_arm=true;
     led_blink_on=false;     
   }
   
